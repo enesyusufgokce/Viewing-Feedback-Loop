@@ -66,6 +66,24 @@ export default function HomePage() {
     return viewingsWithStatus;
   }, [activeView, viewingsWithStatus]);
 
+  const badgeCounts = useMemo(
+    () => ({
+      today: viewingsWithStatus.length,
+      pending: viewingsWithStatus.filter(
+        (v) => v.feedbackStatus === "draft_pending"
+      ).length,
+    }),
+    [viewingsWithStatus]
+  );
+
+  const drawerViewing = useMemo(() => {
+    if (!selectedViewing) return null;
+    return (
+      viewingsWithStatus.find((v) => v.id === selectedViewing.id) ??
+      selectedViewing
+    );
+  }, [selectedViewing, viewingsWithStatus]);
+
   const handleOpenViewing = (viewing: Viewing) => {
     const resolved =
       viewingsWithStatus.find((v) => v.id === viewing.id) ?? viewing;
@@ -73,33 +91,28 @@ export default function HomePage() {
     setDrawerOpen(true);
   };
 
-  const handleMessageSent = (viewingId: string, data: SentMessageRecord) => {
-    setSentMessages((prev) => ({ ...prev, [viewingId]: data }));
+  const setViewingStatus = (viewingId: string, status: FeedbackStatus) => {
     setStatusOverrides((prev) => ({
       ...prev,
-      [viewingId]: { feedbackStatus: "awaiting_reply" },
+      [viewingId]: { feedbackStatus: status },
     }));
-    setSelectedViewing((prev) =>
-      prev?.id === viewingId
-        ? { ...prev, feedbackStatus: "awaiting_reply" }
-        : prev
-    );
+  };
+
+  const handleMessageSent = (viewingId: string, data: SentMessageRecord) => {
+    setSentMessages((prev) => ({ ...prev, [viewingId]: data }));
+    setViewingStatus(viewingId, "awaiting_reply");
+  };
+
+  const handleDraftSkipped = (viewingId: string) => {
+    setViewingStatus(viewingId, "awaiting_reply");
   };
 
   const handleReplyProcessed = (
     viewingId: string,
     data: ProcessedReplyData
   ) => {
-    setStatusOverrides((prev) => ({
-      ...prev,
-      [viewingId]: { feedbackStatus: "feedback_received" },
-    }));
+    setViewingStatus(viewingId, "feedback_received");
     setProcessedReplies((prev) => ({ ...prev, [viewingId]: data }));
-    setSelectedViewing((prev) =>
-      prev?.id === viewingId
-        ? { ...prev, feedbackStatus: "feedback_received" }
-        : prev
-    );
   };
 
   const viewTitle =
@@ -149,7 +162,11 @@ export default function HomePage() {
       </header>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <Sidebar activeView={activeView} onViewChange={setActiveView} />
+        <Sidebar
+          activeView={activeView}
+          onViewChange={setActiveView}
+          badgeCounts={badgeCounts}
+        />
 
         <div className="flex min-h-0 flex-1 flex-col">
           <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:max-w-[calc(100vw-14rem)]">
@@ -167,7 +184,7 @@ export default function HomePage() {
                 <div className="space-y-3">
                   {filteredViewings.map((viewing) => (
                     <ViewingCard
-                      key={viewing.id}
+                      key={`${viewing.id}-${viewing.feedbackStatus}`}
                       viewing={viewing}
                       onOpen={handleOpenViewing}
                     />
@@ -213,18 +230,17 @@ export default function HomePage() {
       </div>
 
       <ViewingDetailDrawer
-        viewing={selectedViewing}
+        viewing={drawerViewing}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         sentMessage={
-          selectedViewing ? sentMessages[selectedViewing.id] ?? null : null
+          drawerViewing ? sentMessages[drawerViewing.id] ?? null : null
         }
         processedReply={
-          selectedViewing
-            ? processedReplies[selectedViewing.id] ?? null
-            : null
+          drawerViewing ? processedReplies[drawerViewing.id] ?? null : null
         }
         onMessageSent={handleMessageSent}
+        onDraftSkipped={handleDraftSkipped}
         onReplyProcessed={handleReplyProcessed}
       />
     </div>

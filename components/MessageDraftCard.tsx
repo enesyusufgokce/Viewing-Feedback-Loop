@@ -19,6 +19,7 @@ interface MessageDraftCardProps {
   viewingId: string;
   buyerName: string;
   onSent?: (data: SentMessageRecord) => void;
+  onSkip?: () => void;
 }
 
 function AIDraftBadge() {
@@ -34,6 +35,7 @@ export function MessageDraftCard({
   viewingId,
   buyerName,
   onSent,
+  onSkip,
 }: MessageDraftCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [message, setMessage] = useState("");
@@ -96,14 +98,12 @@ export function MessageDraftCard({
   };
 
   const handleApprove = () => {
+    const sentAt = formatTimeNow();
+    onSent?.({ text: message, sentAt });
     setIsApproving(true);
     setCheckFade(false);
     window.setTimeout(() => setCheckFade(true), 400);
-    window.setTimeout(() => {
-      const sentAt = formatTimeNow();
-      onSent?.({ text: message, sentAt });
-      setIsApproving(false);
-    }, 650);
+    window.setTimeout(() => setIsApproving(false), 650);
   };
 
   const handleSaveEdit = () => {
@@ -189,7 +189,12 @@ export function MessageDraftCard({
             >
               Edit
             </Button>
-            <Button size="sm" variant="ghost" aria-label="Skip sending message">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onSkip?.()}
+              aria-label="Skip sending message"
+            >
               Skip
             </Button>
             {hasGenerated && (

@@ -36,6 +36,7 @@ interface ConversationSectionProps {
   sentMessage: SentMessageRecord | null;
   processedReply?: ProcessedReplyData | null;
   onMessageSent?: (data: SentMessageRecord) => void;
+  onDraftSkipped?: () => void;
   onReplyProcessed?: (data: ProcessedReplyData) => void;
 }
 
@@ -55,6 +56,7 @@ export function ConversationSection({
   sentMessage,
   processedReply,
   onMessageSent,
+  onDraftSkipped,
   onReplyProcessed,
 }: ConversationSectionProps) {
   const { buyer } = viewing;
@@ -123,6 +125,7 @@ export function ConversationSection({
           viewingId={viewing.id}
           buyerName={buyer.name}
           onSent={(data) => onMessageSent?.(data)}
+          onSkip={() => onDraftSkipped?.()}
         />
       </section>
     );

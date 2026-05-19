@@ -14,34 +14,52 @@ interface NavItem {
   id: AppView;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
+  showBadge?: boolean;
   disabled?: boolean;
 }
 
 const navItems: NavItem[] = [
-  { id: "today", label: "Today's Viewings", icon: CalendarDays, badge: 3 },
+  { id: "today", label: "Today's Viewings", icon: CalendarDays, showBadge: true },
   {
     id: "pending",
     label: "Pending Approvals",
     icon: CheckSquare,
-    badge: 2,
+    showBadge: true,
   },
   { id: "vendor-reports", label: "Vendor Reports", icon: FileText },
   { id: "settings", label: "Settings", icon: Settings, disabled: true },
 ];
 
+export interface SidebarBadgeCounts {
+  today: number;
+  pending: number;
+}
+
 interface SidebarProps {
   activeView: AppView;
   onViewChange: (view: AppView) => void;
+  badgeCounts: SidebarBadgeCounts;
 }
 
-export function Sidebar({ activeView, onViewChange }: SidebarProps) {
+function getBadgeCount(
+  itemId: AppView,
+  badgeCounts: SidebarBadgeCounts
+): number | undefined {
+  if (itemId === "today") return badgeCounts.today;
+  if (itemId === "pending") return badgeCounts.pending;
+  return undefined;
+}
+
+export function Sidebar({ activeView, onViewChange, badgeCounts }: SidebarProps) {
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r bg-white">
       <nav className="flex flex-1 flex-col gap-1 p-3" aria-label="Main navigation">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeView === item.id;
+          const badge = item.showBadge
+            ? getBadgeCount(item.id, badgeCounts)
+            : undefined;
 
           return (
             <button
@@ -51,8 +69,8 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
               onClick={() => !item.disabled && onViewChange(item.id)}
               aria-current={isActive ? "page" : undefined}
               aria-label={
-                item.badge !== undefined
-                  ? `${item.label}, ${item.badge} items`
+                badge !== undefined
+                  ? `${item.label}, ${badge} items`
                   : item.label
               }
               className={cn(
@@ -66,7 +84,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden />
               <span className="flex-1">{item.label}</span>
-              {item.badge !== undefined && (
+              {badge !== undefined && (
                 <Badge
                   variant={isActive ? "default" : "secondary"}
                   className={cn(
@@ -74,7 +92,7 @@ export function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     isActive && "bg-[#534AB7] hover:bg-[#534AB7]/90"
                   )}
                 >
-                  {item.badge}
+                  {badge}
                 </Badge>
               )}
             </button>

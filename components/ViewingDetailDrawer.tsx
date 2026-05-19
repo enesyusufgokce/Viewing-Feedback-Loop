@@ -25,6 +25,7 @@ interface ViewingDetailDrawerProps {
   sentMessage?: SentMessageRecord | null;
   processedReply?: ProcessedReplyData | null;
   onMessageSent?: (viewingId: string, data: SentMessageRecord) => void;
+  onDraftSkipped?: (viewingId: string) => void;
   onReplyProcessed?: (viewingId: string, data: ProcessedReplyData) => void;
 }
 
@@ -35,6 +36,7 @@ export function ViewingDetailDrawer({
   sentMessage,
   processedReply,
   onMessageSent,
+  onDraftSkipped,
   onReplyProcessed,
 }: ViewingDetailDrawerProps) {
   if (!viewing) return null;
@@ -100,10 +102,12 @@ export function ViewingDetailDrawer({
           <Separator />
 
           <ConversationSection
+            key={`${viewing.id}-${viewing.feedbackStatus}`}
             viewing={viewing}
             sentMessage={sentMessage ?? null}
             processedReply={processedReply}
             onMessageSent={(data) => onMessageSent?.(viewing.id, data)}
+            onDraftSkipped={() => onDraftSkipped?.(viewing.id)}
             onReplyProcessed={(data) => onReplyProcessed?.(viewing.id, data)}
           />
         </div>
