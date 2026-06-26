@@ -2,8 +2,6 @@
 
 AI-assisted post-viewing feedback workflow for UK estate agents (demo application).
 
-**Live demo:** [https://viewing-feedback-loop.vercel.app](https://viewing-feedback-loop.vercel.app)
-
 ## What this is
 
 This project is a front-end demo built for a job application. It shows how an estate agent can draft personalised WhatsApp follow-ups after property viewings, process buyer replies into structured feedback, and generate weekly vendor care reports.
