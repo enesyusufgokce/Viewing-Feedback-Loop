@@ -4,7 +4,7 @@ AI-assisted post-viewing feedback workflow for UK estate agents (demo applicatio
 
 ## What this is
 
-This project is a front-end demo built for a job application. It shows how an estate agent can draft personalised WhatsApp follow-ups after property viewings, process buyer replies into structured feedback, and generate weekly vendor care reports.
+This project shows how an estate agent can draft personalised WhatsApp follow-ups after property viewings, process buyer replies into structured feedback, and generate weekly vendor care reports.
 
 The data is mocked (no database or authentication). The UI is designed to walk through a realistic day-in-the-life flow for a single property and three buyers.
 
